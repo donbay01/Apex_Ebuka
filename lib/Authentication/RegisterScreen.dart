@@ -1,10 +1,17 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sort_child_properties_last, sized_box_for_whitespace
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sort_child_properties_last, sized_box_for_whitespace, avoid_print, use_build_context_synchronously
+
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:apex_ebuka/Authentication/loginScreen.dart';
+import 'package:apex_ebuka/Authentication/verification_screen.dart';
+import 'package:apex_ebuka/Screens/loadingPage.dart';
 import 'package:apex_ebuka/constraints.dart';
+import 'package:apex_ebuka/model/register_model.dart';
 import 'package:apex_ebuka/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -14,12 +21,38 @@ class RegisterScreen extends StatefulWidget {
   _RegisterScreenState createState() => _RegisterScreenState();
 }
 
+Future<RegisterModel?> createUser(String fullName, String email, String password) async{
+  try {
+    final Uri apiUrl = Uri.parse("https://smart-pay-mobile.herokuapp.com/api/v1/auth/register");
+
+    final response = await http.post(apiUrl,body: {
+      "full_name" : fullName,
+      "email": email,
+      "password": password,
+      "country": "NG",
+      "device_name": "web"
+    });
+
+    if (response.statusCode == 200) {
+      final String body = jsonDecode(response.body);
+      print(body);
+    }
+  }
+  on SocketException catch (e) {
+    print(e);
+  }
+
+}
+
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController fullnameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool _obscureText = true;
 
+  RegisterModel? _user;
+
+  bool loading = false;
   void _toggle() {
     setState(() {
       _obscureText = !_obscureText;
@@ -28,7 +61,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
+      body: loading == false ?
+      SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Container(
@@ -174,7 +208,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Text(
                       'Sign Up',style: mediumText(primaryWhite),
                     ),
-                    onPressed: (){},
+                    onPressed: ()  async{
+                      if (fullnameController.text.isEmpty) {
+                        displayToastMessage(
+                            "Kindly Provide your Username",primaryOrange, context);
+                      } else if (emailController.text.isEmpty) {
+                        displayToastMessage(
+                            "Kindly Provide an email",primaryOrange, context);
+                      } else if (passwordController.text.isEmpty) {
+                        displayToastMessage(
+                            "Kindly Provide a Password",primaryOrange, context);
+                      } else if (fullnameController.text.length < 2) {
+                        displayToastMessage(
+                            "please provide a username",primaryOrange, context);
+                      } else if (!emailController.text
+                          .contains("@")) {
+                        displayToastMessage(
+                            "Enter a valid email address",primaryOrange, context);
+                      } else if (!emailController.text
+                          .contains(".")) {
+                        displayToastMessage(
+                            "Enter a valid email address",primaryOrange, context);
+                      }
+                      setState(() {
+                        loading = true;
+                      });
+                      createUser(
+                          fullnameController.text,
+                          emailController.text,
+                          passwordController.text);
+                      await Future.delayed(Duration(seconds: 5));
+                      Navigator.push(context, MaterialPageRoute(builder: (_)=>VerifyScreen()));
+                      setState(() {
+                        loading = false;
+                      });
+                    },
                     style: ElevatedButton.styleFrom(
                         primary: primaryBlack,
                         shape: RoundedRectangleBorder(
@@ -267,7 +335,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ),
         ),
-      ),
+      )
+      : Center(child: LoadingPage()),
     );
   }
 }

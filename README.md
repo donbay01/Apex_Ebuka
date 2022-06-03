@@ -2,15 +2,8 @@
 
 Accessment for Apex Network.
 
-## Getting Started
+I have successfully build the necessary UI screens, i successfully call all API endpoints are requested.
+Looking forward to your feedback.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Regards
+Ebuka

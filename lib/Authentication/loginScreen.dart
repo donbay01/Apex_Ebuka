@@ -3,12 +3,11 @@
 import 'dart:io';
 
 import 'package:apex_ebuka/Authentication/RegisterScreen.dart';
+import 'package:apex_ebuka/Screens/Onboarding/onboarding_screen.dart';
 import 'package:apex_ebuka/Screens/home_screen.dart';
 import 'package:apex_ebuka/Screens/loadingPage.dart';
-import 'package:apex_ebuka/Screens/splash_screen.dart';
 import 'package:apex_ebuka/constraints.dart';
 import 'package:apex_ebuka/model/loginModel.dart';
-import 'package:apex_ebuka/model/register_model.dart';
 import 'package:apex_ebuka/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -84,7 +83,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                 color: primaryBlack,
                               ),
                               onPressed: () {
-                                Navigator.pop(context);
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) => OnboardingScreen()));
                               },
                             ),
                           ),
@@ -217,31 +219,39 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             onPressed: () async {
                               if (emailController.text.isEmpty) {
-                                displayToastMessage("Kindly Provide an email address",primaryOrange, context);
-                              }  else if (passwordController.text.isEmpty) {
-                                displayToastMessage("Kindly Provide a Password",primaryOrange, context);
-                              }
-                              else if (!emailController.text.contains("@")) {
-                                displayToastMessage("Enter a valid email address",primaryOrange, context);
+                                displayToastMessage(
+                                    "Kindly Provide an email address",
+                                    primaryOrange,
+                                    context);
+                              } else if (passwordController.text.isEmpty) {
+                                displayToastMessage("Kindly Provide a Password",
+                                    primaryOrange, context);
+                              } else if (!emailController.text.contains("@")) {
+                                displayToastMessage(
+                                    "Enter a valid email address",
+                                    primaryOrange,
+                                    context);
                               }
                               setState(() {
                                 loading = true;
                               });
 
-                              final LoginModel? user =  await loginUser(emailController.text,
+                              final LoginModel? user = await loginUser(
+                                  emailController.text,
                                   passwordController.text);
                               setState(() {
                                 _user = user;
                               });
                               setState(() {
-                                loading = true;
+                                loading = false;
                               });
-                              _user == null ? displayToastMessage("logged in",primaryOrange, context)
-                                  : displayToastMessage("Logged in ${_user!.data.user.fullName}",primaryOrange, context);
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) => HomeScreen()));
+                              _user == null
+                                  ? displayToastMessage(
+                                      "Invalid Username or Password", primaryOrange, context)
+                                  : Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => HomeScreen()));
                             },
                             style: ElevatedButton.styleFrom(
                                 primary: primaryBlack,
@@ -350,13 +360,13 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-displayToastMessage(String message,Color color, BuildContext context) {
+displayToastMessage(String message, Color color, BuildContext context) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
     duration: Duration(seconds: 1),
     content: Text(
       message,
       textAlign: TextAlign.center,
-      style: TextStyle(color: Colors.white,fontSize: 15),
+      style: TextStyle(color: primaryBlack, fontSize: 15),
     ),
     backgroundColor: color,
   ));
